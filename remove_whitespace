@@ -3,6 +3,8 @@ import argparse
 import os
 import sys
 
+from shutil import copyfile
+
 
 FILE_ERROR = 1
 EMPTY_FILE = 2
@@ -31,7 +33,7 @@ def open_file(input_file):
         print "Please try again with a valid filepath"
         sys.exit(FILE_ERROR)
 
-    return f
+    return f, input_file
 
 def read_file(input_file):
     lines = input_file.readlines()
@@ -43,10 +45,15 @@ def read_file(input_file):
 
     return lines
 
+def copy_file(filename):
+    backup = '%s.backup' % (filename)
+    copyfile(filename, backup)
+
 def main():
     args = parse_arguments()
-    input_file = open_file(args.input_file)
+    input_file, filename = open_file(args.input_file)
     lines = read_file(input_file)
+    copy_file(filename)
 
 if __name__ == "__main__":
     main()
