@@ -4,12 +4,21 @@ import argparse
 from file_handler import FileHandler
 
 
+TAB_SPACE_WIDTH = 4  # Default number of spaces to replace tabs with
+
+
 def parse_arguments():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-t', '--trailing-only', help='Only remove trailing \
-                         whitespace found at the end of a line. Note that this\
-                         does not remove multiple blank spaces in a row if \
-                         found.', action='store_true')
+    parser = argparse.ArgumentParser(description='If no optional arguments are\
+                                     specified, default behavior is to perform\
+                                     all optional functions.')
+    parser.add_argument('-r', '--replace-tabs', help='Replace all tabs with \
+                         a set number of spaces. Optionally specify the number\
+                         of spaces to indent as an integer. Default number of \
+                         spaces is %s.' % (TAB_SPACE_WIDTH), type=int,
+                         nargs='?')
+    parser.add_argument('-t', '--trailing', help='Remove trailing whitespace \
+                         found at the end of a line. Default behavior is to \
+                         remove trailing whitespace.', action='store_true')
     parser.add_argument('-v', '--verbose', help='Where applicable, output more\
                          data to help with debugging.', action='store_true')
     parser.add_argument('input_file', help='Specify the filename that will be \
@@ -37,10 +46,30 @@ def check_trailing(lines, verbose):
         line_number += 1
     return output_lines
 
+def replace_tabs(lines, verbose, tab_width):
+    line_number = 1
+    output_lines = []
+
+    if tab_width is None:
+        tab_width = TAB_SPACE_WIDTH
+
+    for line in lines:
+        if '\t' in line:
+            if verbose:
+                print "Tab found on line %s" % (line_number)
+            line = line.replace('\t', ' ' * tab_width)
+            output_lines.append('%s' % (line))
+        else:
+            output_lines.append('%s' % (line))
+
+        line_number += 1
+    return output_lines
+
 def main():
     args = parse_arguments()
     file_handler = FileHandler(args.input_file)
     new_lines = check_trailing(file_handler.lines, args.verbose)
+    new_lines = replace_tabs(new_lines, args.verbose, args.replace_tabs)
     file_handler.save_file(new_lines, args.verbose)
 
 

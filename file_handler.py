@@ -27,7 +27,8 @@ class FileHandler:
         try:
             f = open(self.filename, 'r')
         except IOError:
-            print "Error: '%s' does not appear to be a valid file"
+            print "Error: '%s' does not appear to be a valid file"\
+                  % (filename)
             print "Please try again with a valid filepath"
             sys.exit(FILE_ERROR)
 
