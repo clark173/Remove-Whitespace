@@ -1,14 +1,7 @@
 #!/usr/bin/env python2
 import argparse
-import os
-import sys
 
-from shutil import copyfile
-
-
-FILE_ERROR = 1
-EMPTY_FILE = 2
-KEYBOARD_INTERRUPT = 3
+from file_handler import FileHandler
 
 
 def parse_arguments():
@@ -23,60 +16,6 @@ def parse_arguments():
                          checked for unnecessary whitespace. A copy of this \
                          file will be stored as <input_file>.backup', type=str)
     return parser.parse_args()
-
-def open_file(input_file):
-    if not os.path.isabs(input_file):
-        directory = os.path.dirname(os.path.realpath(__file__))
-        input_file = os.path.join(directory, input_file)
-
-    try:
-        f = open(input_file, 'r')
-    except IOError:
-        print "Error: '%s' does not appear to be a valid file"
-        print "Please try again with a valid filepath"
-        sys.exit(FILE_ERROR)
-
-    return f, input_file
-
-def read_file(input_file):
-    lines = input_file.readlines()
-
-    if len(lines) < 1:
-        print "Error: File is empty - nothing to do"
-        print "Please try again with a populated file"
-        sys.exit(EMPTY_FILE)
-
-    return lines
-
-def save_new_file():
-    while True:
-        new_filename = get_input("Please enter a new filename: ")
-        if os.path.isfile(new_filename):
-            response = get_input("'%s' already exists. Overwrite file? "
-                                 "[y/n] " % (new_filename))
-            if response.lower() == 'y':
-                return new_filename
-            else:
-                continue
-        else:
-            return new_filename
-
-def copy_file(filename):
-    backup = '%s.backup' % (filename)
-
-    if os.path.isfile(backup):
-        while True:
-            response = get_input("'%s' already exists. Overwrite file? "
-                                 "[y/n] " % (backup))
-            if response.lower() == 'y':
-                break
-            elif response.lower() == 'n':
-                backup = save_new_file()
-                break
-            else:
-                continue
-
-    copyfile(filename, backup)
 
 def check_trailing(lines, verbose):
     line_number = 1
@@ -98,37 +37,11 @@ def check_trailing(lines, verbose):
         line_number += 1
     return output_lines
 
-def save_file(lines, filename, verbose):
-    f = open(filename, 'w')
-
-    for line in lines:
-        f.write(line)
-
-    if verbose:
-        print "File saved at '%s'" % (filename)
-
-    f.close()
-
 def main():
     args = parse_arguments()
-    input_file, filename = open_file(args.input_file)
-    lines = read_file(input_file)
-    copy_file(filename)
-    new_lines = check_trailing(lines, args.verbose)
-    save_file(new_lines, filename, args.verbose)
-
-def keyboard_input(func):
-    def wrapper(prompt):
-        try:
-            return func(prompt)
-        except KeyboardInterrupt:
-            print "\nExiting script."
-            sys.exit(KEYBOARD_INTERRUPT)
-    return wrapper
-
-@keyboard_input
-def get_input(prompt):
-    return raw_input(prompt)
+    file_handler = FileHandler(args.input_file)
+    new_lines = check_trailing(file_handler.lines, args.verbose)
+    file_handler.save_file(new_lines, args.verbose)
 
 
 if __name__ == "__main__":
