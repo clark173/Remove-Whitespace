@@ -63,6 +63,8 @@ def check_trailing(lines, verbose):
                 print 'Trailing whitespace on line %s' % (line_number)
             stripped_line = stripped_line.rstrip()
             output_lines.append('%s\n' % (stripped_line))
+        elif len(stripped_line) > 0 and not stripped_line[-1].isspace():
+            output_lines.append('%s\n' % (stripped_line))
         else:
             output_lines.append('\n')
 
