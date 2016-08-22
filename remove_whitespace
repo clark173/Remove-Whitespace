@@ -60,7 +60,7 @@ def check_trailing(lines, verbose):
 
         if len(stripped_line) > 0 and stripped_line[-1].isspace():
             if verbose:
-                print 'Trailing whitespace on line %s' % (line_number)
+                print "Trailing whitespace on line %s" % (line_number)
             stripped_line = stripped_line.rstrip()
             output_lines.append('%s\n' % (stripped_line))
         elif len(stripped_line) > 0 and not stripped_line[-1].isspace():
@@ -71,12 +71,24 @@ def check_trailing(lines, verbose):
         line_number += 1
     return output_lines
 
+def save_file(lines, filename, verbose):
+    f = open(filename, 'w')
+
+    for line in lines:
+        f.write(line)
+
+    if verbose:
+        print "File saved at '%s'" % (filename)
+
+    f.close()
+
 def main():
     args = parse_arguments()
     input_file, filename = open_file(args.input_file)
     lines = read_file(input_file)
     copy_file(filename)
     new_lines = check_trailing(lines, args.verbose)
+    save_file(new_lines, filename, args.verbose)
 
 if __name__ == "__main__":
     main()
