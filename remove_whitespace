@@ -5,6 +5,7 @@ import sys
 
 
 FILE_ERROR = 1
+EMPTY_FILE = 2
 
 
 def parse_arguments():
@@ -32,9 +33,20 @@ def open_file(input_file):
 
     return f
 
+def read_file(input_file):
+    lines = input_file.readlines()
+
+    if len(lines) < 1:
+        print "Error: File is empty - nothing to do"
+        print "Please try again with a populated file"
+        sys.exit(EMPTY_FILE)
+
+    return lines
+
 def main():
     args = parse_arguments()
     input_file = open_file(args.input_file)
+    lines = read_file(input_file)
 
 if __name__ == "__main__":
     main()
