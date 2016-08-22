@@ -51,11 +51,30 @@ def copy_file(filename):
     backup = '%s.backup' % (filename)
     copyfile(filename, backup)
 
+def check_trailing(lines, verbose):
+    line_number = 1
+    output_lines = []
+
+    for line in lines:
+        stripped_line = line.replace('\n', '')
+
+        if len(stripped_line) > 0 and stripped_line[-1].isspace():
+            if verbose:
+                print 'Trailing whitespace on line %s' % (line_number)
+            stripped_line = stripped_line.rstrip()
+            output_lines.append('%s\n' % (stripped_line))
+        else:
+            output_lines.append('\n')
+
+        line_number += 1
+    return output_lines
+
 def main():
     args = parse_arguments()
     input_file, filename = open_file(args.input_file)
     lines = read_file(input_file)
     copy_file(filename)
+    new_lines = check_trailing(lines, args.verbose)
 
 if __name__ == "__main__":
     main()
