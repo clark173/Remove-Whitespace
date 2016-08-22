@@ -50,39 +50,31 @@ def read_file(input_file):
 
 def save_new_file():
     while True:
-        try:
-            new_filename = raw_input("Please enter a new filename: ")
-            if os.path.isfile(new_filename):
-                response = raw_input("'%s' already exists. Overwrite file? "
-                                     "[y/n] " % (new_filename))
-                if response.lower() == 'y':
-                    return new_filename
-                else:
-                    continue
-            else:
+        new_filename = get_input("Please enter a new filename: ")
+        if os.path.isfile(new_filename):
+            response = get_input("'%s' already exists. Overwrite file? "
+                                 "[y/n] " % (new_filename))
+            if response.lower() == 'y':
                 return new_filename
-        except KeyboardInterrupt:
-            print "\nExiting script"
-            sys.exit(KEYBOARD_INTERRUPT)
+            else:
+                continue
+        else:
+            return new_filename
 
 def copy_file(filename):
     backup = '%s.backup' % (filename)
 
     if os.path.isfile(backup):
         while True:
-            try:
-                response = raw_input("'%s' already exists. Overwrite file? "
-                                     "[y/n] " % (backup))
-                if response.lower() == 'y':
-                    break
-                elif response.lower() == 'n':
-                    backup = save_new_file()
-                    break
-                else:
-                    continue
-            except KeyboardInterrupt:
-                print "\nExiting script"
-                sys.exit(KEYBOARD_INTERRUPT)
+            response = get_input("'%s' already exists. Overwrite file? "
+                                 "[y/n] " % (backup))
+            if response.lower() == 'y':
+                break
+            elif response.lower() == 'n':
+                backup = save_new_file()
+                break
+            else:
+                continue
 
     copyfile(filename, backup)
 
@@ -124,6 +116,20 @@ def main():
     copy_file(filename)
     new_lines = check_trailing(lines, args.verbose)
     save_file(new_lines, filename, args.verbose)
+
+def keyboard_input(func):
+    def wrapper(prompt):
+        try:
+            return func(prompt)
+        except KeyboardInterrupt:
+            print "\nExiting script."
+            sys.exit(KEYBOARD_INTERRUPT)
+    return wrapper
+
+@keyboard_input
+def get_input(prompt):
+    return raw_input(prompt)
+
 
 if __name__ == "__main__":
     main()
