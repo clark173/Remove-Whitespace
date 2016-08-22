@@ -8,6 +8,7 @@ from shutil import copyfile
 
 FILE_ERROR = 1
 EMPTY_FILE = 2
+KEYBOARD_INTERRUPT = 3
 
 
 def parse_arguments():
@@ -47,8 +48,42 @@ def read_file(input_file):
 
     return lines
 
+def save_new_file():
+    while True:
+        try:
+            new_filename = raw_input("Please enter a new filename: ")
+            if os.path.isfile(new_filename):
+                response = raw_input("'%s' already exists. Overwrite file? "
+                                     "[y/n] " % (new_filename))
+                if response.lower() == 'y':
+                    return new_filename
+                else:
+                    continue
+            else:
+                return new_filename
+        except KeyboardInterrupt:
+            print "\nExiting script"
+            sys.exit(KEYBOARD_INTERRUPT)
+
 def copy_file(filename):
     backup = '%s.backup' % (filename)
+
+    if os.path.isfile(backup):
+        while True:
+            try:
+                response = raw_input("'%s' already exists. Overwrite file? "
+                                     "[y/n] " % (backup))
+                if response.lower() == 'y':
+                    break
+                elif response.lower() == 'n':
+                    backup = save_new_file()
+                    break
+                else:
+                    continue
+            except KeyboardInterrupt:
+                print "\nExiting script"
+                sys.exit(KEYBOARD_INTERRUPT)
+
     copyfile(filename, backup)
 
 def check_trailing(lines, verbose):
